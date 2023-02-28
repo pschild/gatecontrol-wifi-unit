@@ -1,0 +1,57 @@
+esphome:
+  name: ha-test
+  includes:
+    - receiver_component.h
+  libraries:
+    - EspSoftwareSerial
+
+esp8266:
+  board: nodemcu
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "b61b545797b9a0882fb3be31f5717bcc"
+
+wifi:
+  ssid: "FRITZ!Box 7560 EH"
+  password: "11606865806396363926"
+  manual_ip:
+    static_ip: 192.168.178.48
+    gateway: 192.168.178.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "HA Test Fallback Hotspot"
+    password: "tPGCxDc7hYlA"
+
+captive_portal:
+
+custom_component:
+  - lambda: |-
+      auto receiver = new ReceiverComponent();
+      return {receiver};
+    components:
+      - id: receiver
+
+sensor:
+  - platform: custom
+    lambda: |-
+      ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
+      return { receiverComp->sensor };
+    sensors:
+    - name: Boiler Temperature
+      unit_of_measurement: °C
+
+switch:
+  - platform: custom
+    lambda: |-
+      ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
+      return { receiverComp->relaisSwitch };
+    switches:
+      name: "Relais"
