@@ -39,19 +39,40 @@ custom_component:
     components:
       - id: receiver
 
+binary_sensor:
+  - platform: custom
+    lambda: |-
+      ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
+      return {
+        receiverComp->sensorGate1,
+        receiverComp->sensorGate2
+      };
+    binary_sensors:
+    - name: Gate 1
+      filters:
+        - invert:
+    - name: Gate 2
+      filters:
+        - invert:
+
 sensor:
   - platform: custom
     lambda: |-
       ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
-      return { receiverComp->sensor };
+      return {
+        receiverComp->heartbeatSensor
+      };
     sensors:
-    - name: Boiler Temperature
-      unit_of_measurement: °C
+    - name: Heartbeat
 
 switch:
   - platform: custom
     lambda: |-
       ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
-      return { receiverComp->relaisSwitch };
+      return {
+        receiverComp->relaisSwitch1,
+        receiverComp->relaisSwitch2
+      };
     switches:
-      name: "Relais"
+    - name: Relay 1
+    - name: Relay 2

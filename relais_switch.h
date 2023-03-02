@@ -7,6 +7,6 @@ class RelaisSwitch : public Switch {
   void write_state(bool state) override {
     ESP_LOGD("relais_switch", "write_state");
     // Acknowledge new state by publishing it
-    publish_state(state);
+    // publish_state(state);
   }
 };
