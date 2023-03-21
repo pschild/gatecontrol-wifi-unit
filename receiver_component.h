@@ -1,5 +1,9 @@
+/**
+ * GARAGENTOR STEUERUNG PER HC-12 - NodeMCU im WLAN mit Verbindung zu Home Assistant
+ */
+
 #include "esphome.h"
-#include "relais_switch.h"
+// #include "relais_switch.h"
 #include "SoftwareSerial.h"
 using namespace esphome;
 
@@ -15,10 +19,12 @@ private:
   boolean newData = false;
 
 public:
-  Switch *relaisSwitch1 = new RelaisSwitch();
-  Switch *relaisSwitch2 = new RelaisSwitch();
+  // Switch *relaisSwitch1 = new RelaisSwitch();
+  // Switch *relaisSwitch2 = new RelaisSwitch();
   BinarySensor *sensorGate1 = new BinarySensor();
   BinarySensor *sensorGate2 = new BinarySensor();
+  BinarySensor *sensorRelay1 = new BinarySensor();
+  BinarySensor *sensorRelay2 = new BinarySensor();
   Sensor *heartbeatSensor = new Sensor();
 
   void setup() override
@@ -27,17 +33,17 @@ public:
     hc12.begin(9600);
     randomSeed(analogRead(0));
 
-    relaisSwitch1->add_on_state_callback([=](bool state) -> void {
-      ESP_LOGD("receiver_component", "switch 1 callback %d", state);
-      char command[] = "setrelay1";
-      this->sendRelaisCommand(command, relaisSwitch1->state);
-    });
+    // relaisSwitch1->add_on_state_callback([=](bool state) -> void {
+    //   ESP_LOGD("receiver_component", "switch 1 callback %d", state);
+    //   char command[] = "setrelay1";
+    //   this->sendRelaisCommand(command, relaisSwitch1->state);
+    // });
 
-    relaisSwitch2->add_on_state_callback([=](bool state) -> void {
-      ESP_LOGD("receiver_component", "switch 2 callback %d", state);
-      char command[] = "setrelay2";
-      this->sendRelaisCommand(command, relaisSwitch2->state);
-    });
+    // relaisSwitch2->add_on_state_callback([=](bool state) -> void {
+    //   ESP_LOGD("receiver_component", "switch 2 callback %d", state);
+    //   char command[] = "setrelay2";
+    //   this->sendRelaisCommand(command, relaisSwitch2->state);
+    // });
   }
 
   void update() override
@@ -51,7 +57,21 @@ public:
       newData = false;
     }
   }
-  
+
+  void triggerRelay1()
+  {
+    ESP_LOGD("receiver_component", "triggerRelay1");
+    char command[] = "setrelay1";
+    this->sendRelaisCommand(command, 1);
+  }
+
+  void triggerRelay2()
+  {
+    ESP_LOGD("receiver_component", "triggerRelay2");
+    char command[] = "setrelay2";
+    this->sendRelaisCommand(command, 1);
+  }
+
   void sendRelaisCommand(char command[], int newState)
   {
     ESP_LOGD("receiver_component", "sendRelaisCommand...");
@@ -66,6 +86,7 @@ public:
     hc12.println('>');
   }
 
+  // https://forum.arduino.cc/t/serial-input-basics-updated/382007/2
   void recvWithStartEndMarkers()
   {
     static boolean recvInProgress = false;
@@ -121,12 +142,14 @@ public:
       strtokIndx = strtok(NULL, "=");
       strtokIndx = strtok(NULL, ",");
       int relay1State = atoi(strtokIndx);
-      relaisSwitch1->publish_state(relay1State);
+      sensorRelay1->publish_state(relay1State);
+      // relaisSwitch1->publish_state(relay1State);
 
       strtokIndx = strtok(NULL, "=");
       strtokIndx = strtok(NULL, ",");
       int relay2State = atoi(strtokIndx);
-      relaisSwitch2->publish_state(relay2State);
+      sensorRelay2->publish_state(relay2State);
+      // relaisSwitch2->publish_state(relay2State);
 
       strtokIndx = strtok(NULL, "=");
       strtokIndx = strtok(NULL, ",");

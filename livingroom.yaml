@@ -39,23 +39,52 @@ custom_component:
     components:
       - id: receiver
 
+button:
+  - platform: template
+    name: Schalter Tor 1
+    on_press:
+      - lambda: |-
+          ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
+          receiverComp->triggerRelay1();
+  - platform: template
+    name: Schalter Tor 2
+    on_press:
+      - lambda: |-
+          ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
+          receiverComp->triggerRelay2();
+
 binary_sensor:
+  - platform: status
+    name: Garage ESP Status
   - platform: custom
     lambda: |-
       ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
       return {
         receiverComp->sensorGate1,
-        receiverComp->sensorGate2
+        receiverComp->sensorGate2,
+        receiverComp->sensorRelay1,
+        receiverComp->sensorRelay2
       };
     binary_sensors:
-    - name: Gate 1
+    - name: Tor 1
       filters:
         - invert:
-    - name: Gate 2
+      device_class: garage_door
+    - name: Tor 2
       filters:
         - invert:
+      device_class: garage_door
+    - name: Relais 1
+      device_class: opening
+    - name: Relais 2
+      device_class: opening
 
 sensor:
+  - platform: uptime
+    name: Uptime
+  - platform: wifi_signal
+    name: WLAN Signalstärke
+    update_interval: 60s
   - platform: custom
     lambda: |-
       ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
@@ -65,14 +94,18 @@ sensor:
     sensors:
     - name: Heartbeat
 
-switch:
-  - platform: custom
-    lambda: |-
-      ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
-      return {
-        receiverComp->relaisSwitch1,
-        receiverComp->relaisSwitch2
-      };
-    switches:
-    - name: Relay 1
-    - name: Relay 2
+text_sensor:
+  - platform: version
+    name: "Firmware"
+
+# switch:
+#   - platform: custom
+#     lambda: |-
+#       ReceiverComponent *receiverComp = (ReceiverComponent*) id(receiver);
+#       return {
+#         receiverComp->relaisSwitch1,
+#         receiverComp->relaisSwitch2
+#       };
+#     switches:
+#     - name: Relay 1
+#     - name: Relay 2
