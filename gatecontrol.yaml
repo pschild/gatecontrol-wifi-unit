@@ -1,5 +1,5 @@
 esphome:
-  name: ha-test
+  name: gatecontrol
   includes:
     - receiver_component.h
   libraries:
@@ -27,7 +27,7 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "HA Test Fallback Hotspot"
+    ssid: "gatecontrol Fallback Hotspot"
     password: "tPGCxDc7hYlA"
 
 captive_portal:
